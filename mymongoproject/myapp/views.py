@@ -70,25 +70,23 @@ def get_lead_by_id(request, lead_id):
     except Exception as e:
         return HttpResponse(str(e), status=400)
 
-def lead_activity_view(request, lead_id):
-    if request.method == 'GET':
-        try:
-            Lead.objects.get(id=lead_id)
-            activities = Activity.objects(lead=lead_id)
-            data = [{'content': activity.content, 'timestamp': str(activity.timestamp)} for activity in activities]
-            return JsonResponse(data, safe=False)
-        except DoesNotExist:
-            return HttpResponse('Lead not found', status=404)
-        except Exception as e:
-            return HttpResponse(str(e), status=400)
-    elif request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            lead = Lead.objects.get(id=lead_id)
-            activity = Activity(content=data['content'], lead=lead)
-            activity.save()
-            return HttpResponse('Activity added')
-        except DoesNotExist:
-            return HttpResponse('Lead not found', status=404)
-        except Exception as e:
-            return HttpResponse(str(e), status=400)
+def get_lead_activities(request, lead_id):
+    try:
+        Lead.objects.get(id=lead_id) # Check if the lead exists
+        activities = Activity.objects(lead=lead_id)
+        data = [{'content': activity.content, 'timestamp': str(activity.timestamp)} for activity in activities]
+        return JsonResponse(data, safe=False)
+    except DoesNotExist:
+        return HttpResponse('Lead not found', status=404)
+    except Exception as e:
+        return HttpResponse(str(e), status=400)
+
+def add_lead_activity(request, lead_id):
+    try:
+        data = json.loads(request.body)
+        lead = Lead.objects.get(id=lead_id)
+        activity = Activity(content=data['content'], lead=lead)
+        activity.save()
+        return HttpResponse('Activity added')
+    except Exception as e:
+        return HttpResponse(str(e), status=400)
