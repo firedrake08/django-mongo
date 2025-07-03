@@ -40,20 +40,15 @@ def get_all_leads(request):
 def update_lead(request, lead_id):
     try:
         data = json.loads(request.body)
-        # Filter out invalid status values before updating
-        if 'source' in data and data['source'] not in Lead.SOURCE_CHOICES:
-            return HttpResponse('Invalid source provided', status=400)
-
-        if 'status' in data and data['status'] not in Lead.STATUS_CHOICES:
-            del data['status'] # Or raise an error if strict validation is needed
-            Lead.objects(id=lead_id).update(**data)
-            lead = Lead.objects.get(id=lead_id)
-            return JsonResponse({
-                'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name,
-                'age': lead.age, 'phone': lead.phone, 'status': lead.status, 'source': lead.source
-            })
-    except DoesNotExist:
-        return HttpResponse('Lead not found after update', status=404)
+        if 'status' in data:
+            new_status = data['status']
+            if new_status in Lead.STATUS_CHOICES:
+                Lead.objects(id=lead_id).update(set__status=new_status)
+                lead = Lead.objects.get(id=lead_id)
+                return JsonResponse({'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name, 'age': lead.age, 'phone': lead.phone, 'status': lead.status, 'source': lead.source})
+            else:
+                return HttpResponse('Invalid status provided', status=400)
+        return HttpResponse('Only status can be updated', status=400)
     except Exception as e:
  # Catch other exceptions during update
         return HttpResponse(str(e), status=400)
