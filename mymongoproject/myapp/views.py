@@ -7,16 +7,16 @@ def add_lead(request):
         data = json.loads(request.body)
         # Validate that the provided source is one of the allowed choices, if provided
         if 'source' in data and data['source'] not in Lead.SOURCE_CHOICES:
- return HttpResponse('Invalid source provided', status=400)
+            return HttpResponse('Invalid source provided', status=400)
         # Ensure the required 'source' field is present if it's not already validated
         if 'source' not in data or data['source'] == '':
- return HttpResponse('Invalid source provided', status=400)
+            return HttpResponse('Invalid source provided', status=400)
         lead = Lead(**data)
- lead.save()
- return JsonResponse({
- 'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name,
- 'age': lead.age, 'phone': lead.phone, 'status': lead.status, 'source': lead.source
- })
+        lead.save()
+        return JsonResponse({
+            'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name,
+            'age': lead.age, 'phone': lead.phone, 'status': lead.status, 'source': lead.source
+        })
     except Exception as e:
         return HttpResponse(str(e), status=400)
 
@@ -40,18 +40,18 @@ def update_lead(request, lead_id):
         data = json.loads(request.body)
         # Filter out invalid status values before updating
         if 'source' in data and data['source'] not in Lead.SOURCE_CHOICES:
- return HttpResponse('Invalid source provided', status=400)
+            return HttpResponse('Invalid source provided', status=400)
 
         if 'status' in data and data['status'] not in Lead.STATUS_CHOICES:
- del data['status'] # Or raise an error if strict validation is needed
-        Lead.objects(id=lead_id).update(**data)
- lead = Lead.objects.get(id=lead_id)
- return JsonResponse({
- 'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name,
- 'age': lead.age, 'phone': lead.phone, 'status': lead.status, 'source': lead.source
- })
- except DoesNotExist:
- return HttpResponse('Lead not found after update', status=404)
+            del data['status'] # Or raise an error if strict validation is needed
+            Lead.objects(id=lead_id).update(**data)
+            lead = Lead.objects.get(id=lead_id)
+            return JsonResponse({
+                'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name,
+                'age': lead.age, 'phone': lead.phone, 'status': lead.status, 'source': lead.source
+            })
+    except DoesNotExist:
+        return HttpResponse('Lead not found after update', status=404)
     except Exception as e:
  # Catch other exceptions during update
         return HttpResponse(str(e), status=400)
