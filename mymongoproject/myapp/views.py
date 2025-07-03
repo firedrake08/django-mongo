@@ -2,6 +2,7 @@ from django.http import HttpResponse, JsonResponse
 import json
 from .models import Lead, Activity
 from mongoengine.errors import DoesNotExist
+
 def add_lead(request):
     try:
         data = json.loads(request.body)
@@ -9,8 +10,9 @@ def add_lead(request):
         if 'source' in data and data['source'] not in Lead.SOURCE_CHOICES:
             return HttpResponse('Invalid source provided', status=400)
         # Ensure the required 'source' field is present if it's not already validated
-        if 'source' not in data or data['source'] == '':
-            return HttpResponse('Invalid source provided', status=400)
+ # This check might be redundant if the model field is required and has choices
+ # if 'source' not in data or data['source'] == '':
+ # return HttpResponse('Invalid source provided', status=400)
         lead = Lead(**data)
         lead.save()
         return JsonResponse({
@@ -73,25 +75,24 @@ def get_lead_by_id(request, lead_id):
     except Exception as e:
         return HttpResponse(str(e), status=400)
 
-def add_activity_to_lead(request, lead_id):
-    if request.method == 'POST':
+def lead_activity_view(request, lead_id):
+    if request.method == 'GET':
+        try:
+            Lead.objects.get(id=lead_id)
+            activities = Activity.objects(lead=lead_id)
+            data = [{'content': activity.content, 'timestamp': str(activity.timestamp)} for activity in activities]
+            return JsonResponse(data, safe=False)
+        except DoesNotExist:
+            return HttpResponse('Lead not found', status=404)
+        except Exception as e:
+            return HttpResponse(str(e), status=400)
+    elif request.method == 'POST':
         try:
             data = json.loads(request.body)
             lead = Lead.objects.get(id=lead_id)
             activity = Activity(content=data['content'], lead=lead)
             activity.save()
             return HttpResponse('Activity added')
-        except (DoesNotExist, KeyError, json.JSONDecodeError) as e:
-            return HttpResponse(str(e), status=400)
-
-def get_lead_activities(request, lead_id):
-    if request.method == 'GET':
-        try:
-            # Check if the lead exists first
-            Lead.objects.get(id=lead_id)
-            activities = Activity.objects(lead=lead_id)
-            data = [{'content': activity.content, 'timestamp': str(activity.timestamp)} for activity in activities]
-            return JsonResponse(data, safe=False)
         except DoesNotExist:
             return HttpResponse('Lead not found', status=404)
         except Exception as e:
