@@ -86,7 +86,7 @@ def lead_activity_view(request, lead_id):
             return HttpResponse('Lead not found', status=404)
         except Exception as e:
             return HttpResponse(str(e), status=400)
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
         try:
             data = json.loads(request.body)
             lead = Lead.objects.get(id=lead_id)
