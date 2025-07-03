@@ -12,8 +12,11 @@ def add_lead(request):
         if 'source' not in data or data['source'] == '':
  return HttpResponse('Invalid source provided', status=400)
         lead = Lead(**data)
-        lead.save()
- return HttpResponse('Lead added')
+ lead.save()
+ return JsonResponse({
+ 'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name,
+ 'age': lead.age, 'phone': lead.phone, 'status': lead.status, 'source': lead.source
+ })
     except Exception as e:
         return HttpResponse(str(e), status=400)
 
@@ -29,7 +32,7 @@ def get_all_leads(request):
     if 'phone' in request.GET:
         filters['phone__icontains'] = request.GET['phone']
     leads = Lead.objects(**filters)
-    data = [{'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name, 'age': lead.age, 'phone': lead.phone} for lead in leads]
+    data = [{'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name, 'age': lead.age, 'phone': lead.phone, 'status': lead.status, 'source': lead.source} for lead in leads]
     return JsonResponse(data, safe=False)
 
 def update_lead(request, lead_id):
@@ -42,8 +45,15 @@ def update_lead(request, lead_id):
         if 'status' in data and data['status'] not in Lead.STATUS_CHOICES:
  del data['status'] # Or raise an error if strict validation is needed
         Lead.objects(id=lead_id).update(**data)
-        return HttpResponse('Lead updated')
+ lead = Lead.objects.get(id=lead_id)
+ return JsonResponse({
+ 'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name,
+ 'age': lead.age, 'phone': lead.phone, 'status': lead.status, 'source': lead.source
+ })
+ except DoesNotExist:
+ return HttpResponse('Lead not found after update', status=404)
     except Exception as e:
+ # Catch other exceptions during update
         return HttpResponse(str(e), status=400)
 
 def delete_lead(request, lead_id):
@@ -56,7 +66,7 @@ def delete_lead(request, lead_id):
 def get_lead_by_id(request, lead_id):
     try:
         lead = Lead.objects.get(id=lead_id)
-        data = {'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name, 'age': lead.age, 'phone': lead.phone}
+        data = {'id': str(lead.id), 'first_name': lead.first_name, 'last_name': lead.last_name, 'age': lead.age, 'phone': lead.phone, 'status': lead.status, 'source': lead.source}
         return JsonResponse(data)
     except DoesNotExist:
         return HttpResponse('Lead not found', status=404)
