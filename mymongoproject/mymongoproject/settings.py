@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'corsheaders',
     'django_mongoengine',
-    'django_mongoengine_auth',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -87,9 +86,7 @@ DATABASES = {
 }
 
 
-AUTHENTICATION_BACKENDS = (
-    'mongoengine.django.auth.MongoEngineBackend',
-)
+AUTHENTICATION_BACKENDS = ()
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

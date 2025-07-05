@@ -102,9 +102,14 @@ def register_user(request):
             password = data.get('password')
             if not email or not password:
                 return JsonResponse({'error': 'Email and password are required'}, status=400)
-            user = User.objects.create_user(email, password)
+
+            # Check if a user with this email already exists
+            if User.objects(email=email).first():
+                return JsonResponse({'error': 'Email address already in use'}, status=400)
+
+            user = User(email=email)
+            user.set_password(password)  # Hash the password
+            user.save()  # Save the user to the database
             return JsonResponse({'message': 'User registered successfully'})
-        except NotUniqueError:
-            return JsonResponse({'error': 'Email address already in use'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
