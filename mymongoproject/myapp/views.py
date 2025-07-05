@@ -134,10 +134,14 @@ def login_user(request):
             user = authenticate(request, email=email, password=password)
             if user is not None:
                 print("Authentication Successful:", user)
-                print("Authentication successful, about to call login")
-                login(request, user)
-                print("Login function called")
-                return JsonResponse({'message': 'Login successful'})
+                try:
+                    print("Authentication successful, about to call login")
+                    login(request, user)
+                    print("Login function called")
+                    return JsonResponse({'message': 'Login successful'})
+                except Exception as e:
+                    print(f"Error during login: {e}")
+                    return JsonResponse({'error': f'Login failed: {str(e)}'}, status=400)
             else:
                 return JsonResponse({'error': 'Invalid credentials'}, status=401)
         except Exception as e:
