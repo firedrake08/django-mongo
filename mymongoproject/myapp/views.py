@@ -119,7 +119,11 @@ def register_user(request):
 def login_user(request):
     if request.method == 'POST':
         try:
+            print("Raw Request Body:", request.body)
+
             data = json.loads(request.body)
+            print("Parsed JSON Data:", data)
+
             email = data.get('email')
             password = data.get('password')
             if not email or not password:
@@ -127,6 +131,7 @@ def login_user(request):
 
             user = authenticate(request, email=email, password=password)
             if user is not None:
+                print("Authentication Successful:", user)
                 login(request, user)
                 return JsonResponse({'message': 'Login successful'})
             else:
