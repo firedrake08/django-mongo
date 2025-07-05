@@ -86,7 +86,7 @@ DATABASES = {
 }
 
 
-AUTHENTICATION_BACKENDS = ()
+AUTHENTICATION_BACKENDS = ('myapp.backends.MongoEngineBackend',)
 
 # Password validation
 

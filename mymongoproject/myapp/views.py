@@ -1,6 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 import json
 from .models import Lead, Activity, User
+from django.contrib.auth import authenticate, login
 from mongoengine.errors import DoesNotExist
 from mongoengine import NotUniqueError
 
@@ -111,5 +112,24 @@ def register_user(request):
             user.set_password(password)  # Hash the password
             user.save()  # Save the user to the database
             return JsonResponse({'message': 'User registered successfully'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+
+def login_user(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            password = data.get('password')
+            if not email or not password:
+                return JsonResponse({'error': 'Email and password are required'}, status=400)
+
+            user = authenticate(request, email=email, password=password)
+            if user is not None:
+                login(request, user)
+                return JsonResponse({'message': 'Login successful'})
+            else:
+                return JsonResponse({'error': 'Invalid credentials'}, status=401)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
