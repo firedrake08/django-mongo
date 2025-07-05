@@ -9,8 +9,8 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-import mongoengine
-mongoengine.connect(host='mongodb+srv://praveen:hello123@cluster0.l8nf5yw.mongodb.net/django?retryWrites=true&w=majority')
+""" import mongoengine
+mongoengine.connect(host='mongodb+srv://praveen:hello123@cluster0.l8nf5yw.mongodb.net/django?retryWrites=true&w=majority') """
 
 from pathlib import Path
 
@@ -89,6 +89,13 @@ DATABASES = {
 AUTHENTICATION_BACKENDS = ()
 
 # Password validation
+
+MONGODB_DATABASES = {
+    'default': {
+        'name': 'django',
+        'host': 'mongodb+srv://praveen:hello123@cluster0.l8nf5yw.mongodb.net/django?retryWrites=true&w=majority'
+    }
+}
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
