@@ -4,6 +4,7 @@ from .models import Lead, Activity, User
 from django.contrib.auth import authenticate, login
 from mongoengine.errors import DoesNotExist
 from mongoengine import NotUniqueError
+from django.views.decorators.csrf import csrf_exempt
 
 
 def add_lead(request):
@@ -116,6 +117,7 @@ def register_user(request):
             return JsonResponse({'error': str(e)}, status=400)
 
 
+@csrf_exempt
 def login_user(request):
     if request.method == 'POST':
         try:
@@ -132,7 +134,9 @@ def login_user(request):
             user = authenticate(request, email=email, password=password)
             if user is not None:
                 print("Authentication Successful:", user)
+                print("Authentication successful, about to call login")
                 login(request, user)
+                print("Login function called")
                 return JsonResponse({'message': 'Login successful'})
             else:
                 return JsonResponse({'error': 'Invalid credentials'}, status=401)
