@@ -1,5 +1,6 @@
 from mongoengine import Document, StringField, IntField, ReferenceField, DateTimeField
 import datetime
+from mongoengine.django.auth import User as MongoEngineUser
 
 class Lead(Document):
     STATUS_CHOICES = ["New", "Contacted", "Not interested", "Interested", "Later"]
@@ -22,3 +23,9 @@ class Activity(Document):
     meta = {
         'collection': 'activities'
     }
+
+class User(MongoEngineUser):
+    meta = {
+        'collection': 'users'
+    }
+

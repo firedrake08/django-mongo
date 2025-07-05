@@ -1,7 +1,9 @@
 from django.http import HttpResponse, JsonResponse
 import json
-from .models import Lead, Activity
+from .models import Lead, Activity, User
 from mongoengine.errors import DoesNotExist
+from mongoengine import NotUniqueError
+
 
 def add_lead(request):
     try:
@@ -90,3 +92,19 @@ def add_lead_activity(request, lead_id):
         return HttpResponse('Activity added')
     except Exception as e:
         return HttpResponse(str(e), status=400)
+
+
+def register_user(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            password = data.get('password')
+            if not email or not password:
+                return JsonResponse({'error': 'Email and password are required'}, status=400)
+            user = User.objects.create_user(email, password)
+            return JsonResponse({'message': 'User registered successfully'})
+        except NotUniqueError:
+            return JsonResponse({'error': 'Email address already in use'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
