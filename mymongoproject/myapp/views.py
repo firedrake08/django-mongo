@@ -1,7 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 import json
 from .models import Lead, Activity, User
-from django.contrib.auth import authenticate, login
 from mongoengine.errors import DoesNotExist
 from mongoengine import NotUniqueError
 from django.views.decorators.csrf import csrf_exempt
@@ -127,21 +126,13 @@ def login_user(request):
             print("Parsed JSON Data:", data)
 
             email = data.get('email')
-            password = data.get('password')
-            if not email or not password:
+            raw_password = data.get('password') # Get the raw password
+            if not email or not raw_password:
                 return JsonResponse({'error': 'Email and password are required'}, status=400)
 
-            user = authenticate(request, email=email, password=password)
-            if user is not None:
-                print("Authentication Successful:", user)
-                try:
-                    print("Authentication successful, about to call login")
-                    login(request, user)
-                    print("Login function called")
-                    return JsonResponse({'message': 'Login successful'})
-                except Exception as e:
-                    print(f"Error during login: {e}")
-                    return JsonResponse({'error': f'Login failed: {str(e)}'}, status=400)
+            user = User.objects(email=email).first() # Find user by email
+            if user and user.check_password(raw_password): # Check if user exists and password is correct
+                return JsonResponse({'message': 'User authenticated successfully (basic check)'})
             else:
                 return JsonResponse({'error': 'Invalid credentials'}, status=401)
         except Exception as e:

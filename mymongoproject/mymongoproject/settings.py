@@ -85,10 +85,6 @@ DATABASES = {
     }
 }
 
-SESSION_ENGINE = 'mongoengine.django.sessions'
-
-
-AUTHENTICATION_BACKENDS = ('myapp.backends.MongoEngineBackend',)
 
 # Password validation
 
